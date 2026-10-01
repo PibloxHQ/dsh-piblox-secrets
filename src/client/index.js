@@ -11,12 +11,176 @@ window.__ModuleLoader__.load({
     let useState = react.useState;
     let useEffect = react.useEffect;
     let useCallback = react.useCallback;
-    let useRef = react.useRef;
 
     const SECTION_ID = "secrets";
     const LOCALE_NS = "settings.secrets";
     const API = "/api/piblox-secrets";
-    const MASK = "••••••••••••••••";
+
+    /**
+     * Visual language mirrors Discord Settings (dsh-piblox-discord):
+     * Button / Pill / Field / Section via --dsw-alias-* only.
+     * No PiBlox NYC palette literals, no system-color hardcodes, no secret masks.
+     */
+    const css = {
+      page: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "1.25rem",
+        maxWidth: "40rem",
+        color: "var(--dsw-alias-label-primary, inherit)",
+      },
+      title: {
+        margin: 0,
+        fontSize: "1.25rem",
+        letterSpacing: "-0.02em",
+        color: "var(--dsw-alias-label-primary, inherit)",
+      },
+      subtitle: {
+        margin: "0.25rem 0 0",
+        fontSize: "0.9rem",
+        lineHeight: 1.4,
+        color: "var(--dsw-alias-label-secondary, inherit)",
+        opacity: 0.9,
+      },
+      section: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.65rem",
+        padding: "0.85rem 0",
+        borderTop: "0.5px solid var(--dsw-alias-border-l2)",
+      },
+      sectionFirst: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.65rem",
+        padding: "0.85rem 0 0.85rem",
+      },
+      sectionTitle: {
+        margin: 0,
+        fontSize: "0.95rem",
+        fontWeight: 600,
+        color: "var(--dsw-alias-label-primary, inherit)",
+      },
+      field: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.3rem",
+      },
+      label: {
+        fontSize: "0.8rem",
+        color: "var(--dsw-alias-label-primary, inherit)",
+      },
+      hint: {
+        margin: 0,
+        fontSize: "0.75rem",
+        color: "var(--dsw-alias-label-tertiary, inherit)",
+      },
+      input: {
+        boxSizing: "border-box",
+        width: "100%",
+        padding: "0.5rem 0.65rem",
+        borderRadius: "0.45rem",
+        border: "0.5px solid var(--dsw-alias-border-l4)",
+        background: "var(--dsw-alias-bg-layer-3, transparent)",
+        color: "var(--dsw-alias-label-primary, inherit)",
+        font: "inherit",
+        fontSize: "0.9rem",
+      },
+      row: {
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center",
+        gap: "0.5rem",
+      },
+      card: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.55rem",
+        padding: "0.75rem 0.85rem",
+        borderRadius: "0.55rem",
+        border: "0.5px solid var(--dsw-alias-border-l2)",
+        background: "var(--dsw-alias-bg-layer-2)",
+      },
+      secretName: {
+        fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+        fontSize: "0.85rem",
+        wordBreak: "break-all",
+        color: "var(--dsw-alias-label-primary, inherit)",
+      },
+      btn: {
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "0.35rem",
+        padding: "0.4rem 0.75rem",
+        borderRadius: "0.45rem",
+        border: "0.5px solid var(--dsw-alias-border-l3)",
+        background: "transparent",
+        color: "var(--dsw-alias-label-primary, inherit)",
+        font: "inherit",
+        fontSize: "0.85rem",
+        cursor: "pointer",
+      },
+      btnPrimary: {
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "0.35rem",
+        padding: "0.45rem 0.9rem",
+        borderRadius: "0.45rem",
+        border: "0.5px solid transparent",
+        background: "var(--dsw-alias-button-primary-fill)",
+        color: "var(--dsw-alias-label-primary-foreground, var(--dsw-alias-brand-primary-invert))",
+        font: "inherit",
+        fontSize: "0.85rem",
+        cursor: "pointer",
+      },
+      btnDanger: {
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "0.35rem",
+        padding: "0.4rem 0.75rem",
+        borderRadius: "0.45rem",
+        border: "0.5px solid color-mix(in oklab, var(--dsw-alias-state-error-primary) 40%, transparent)",
+        background: "transparent",
+        color: "var(--dsw-alias-state-error-primary)",
+        font: "inherit",
+        fontSize: "0.85rem",
+        cursor: "pointer",
+      },
+      btnDisabled: {
+        opacity: 0.55,
+        cursor: "not-allowed",
+      },
+      pill: {
+        display: "inline-flex",
+        alignItems: "center",
+        padding: "0.15rem 0.55rem",
+        borderRadius: "999px",
+        fontSize: "0.75rem",
+        lineHeight: 1.4,
+        color: "var(--dsw-alias-label-secondary, inherit)",
+        background: "var(--dsw-alias-bg-layer-3)",
+      },
+      pillOk: {
+        color: "var(--dsw-alias-state-success-primary)",
+        background: "color-mix(in oklab, var(--dsw-alias-state-success-primary) 14%, transparent)",
+      },
+      muted: {
+        fontSize: "0.9rem",
+        color: "var(--dsw-alias-label-secondary, inherit)",
+        opacity: 0.9,
+      },
+      error: {
+        fontSize: "0.85rem",
+        color: "var(--dsw-alias-state-error-primary)",
+      },
+      status: {
+        fontSize: "0.75rem",
+        color: "var(--dsw-alias-label-tertiary, inherit)",
+      },
+    };
 
     const DICT = {
       en: {
@@ -27,13 +191,18 @@ window.__ModuleLoader__.load({
         name: "Name",
         value: "Value",
         add: "Add secret",
-        show: "Show value",
-        hide: "Hide value",
-        delete: "Delete",
+        save: "Save",
+        cancel: "Cancel",
+        replace: "Replace",
+        remove: "Remove",
+        configured: "Configured",
         confirmDelete: "Delete this secret?",
         nameHint: "UPPER_SNAKE_CASE",
-        saved: "Saved",
+        newValueHint: "Enter a new value (write-only)",
+        sectionVault: "Vault",
+        sectionAdd: "Add secret",
         saving: "Saving…",
+        saved: "Saved",
         error: "Something went wrong",
         loading: "Loading…",
       },
@@ -45,13 +214,18 @@ window.__ModuleLoader__.load({
         name: "名称",
         value: "值",
         add: "添加密钥",
-        show: "显示",
-        hide: "隐藏",
-        delete: "删除",
+        save: "保存",
+        cancel: "取消",
+        replace: "替换",
+        remove: "删除",
+        configured: "已配置",
         confirmDelete: "删除此密钥？",
         nameHint: "UPPER_SNAKE_CASE",
-        saved: "已保存",
+        newValueHint: "输入新值（只写）",
+        sectionVault: "保管库",
+        sectionAdd: "添加密钥",
         saving: "保存中…",
+        saved: "已保存",
         error: "出错了",
         loading: "加载中…",
       },
@@ -77,212 +251,166 @@ window.__ModuleLoader__.load({
       return data;
     }
 
-    const iconBtn = {
-      type: "button",
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: "2rem",
-        height: "2rem",
-        padding: 0,
-        borderRadius: "0.4rem",
-        border: "1px solid color-mix(in oklab, CanvasText 18%, transparent)",
-        background: "transparent",
-        color: "inherit",
-        cursor: "pointer",
-        flexShrink: 0,
-      },
-    };
+    function btnStyle(base, disabled) {
+      return disabled ? { ...base, ...css.btnDisabled } : base;
+    }
 
-    function IconEye({ open }) {
-      // Minimal stroke icons — no brand logos
-      if (open) {
-        return jsxs("svg", {
-          width: 16,
-          height: 16,
-          viewBox: "0 0 24 24",
-          fill: "none",
-          stroke: "currentColor",
-          strokeWidth: 2,
-          "aria-hidden": true,
-          children: [
-            jsx("path", { d: "M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" }),
-            jsx("path", { d: "M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" }),
-            jsx("line", { x1: 1, y1: 1, x2: 23, y2: 23 }),
-          ],
-        });
-      }
-      return jsxs("svg", {
-        width: 16,
-        height: 16,
-        viewBox: "0 0 24 24",
-        fill: "none",
-        stroke: "currentColor",
-        strokeWidth: 2,
-        "aria-hidden": true,
+    function Section({ title, first, children }) {
+      return jsxs("div", {
+        style: first ? css.sectionFirst : css.section,
         children: [
-          jsx("path", { d: "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" }),
-          jsx("circle", { cx: 12, cy: 12, r: 3 }),
+          title ? jsx("h3", { style: css.sectionTitle, children: title }) : null,
+          children,
         ],
       });
     }
 
-    function IconTrash() {
-      return jsxs("svg", {
-        width: 16,
-        height: 16,
-        viewBox: "0 0 24 24",
-        fill: "none",
-        stroke: "currentColor",
-        strokeWidth: 2,
-        "aria-hidden": true,
+    function Field({ id, label, hint, children }) {
+      return jsxs("div", {
+        style: css.field,
         children: [
-          jsx("polyline", { points: "3 6 5 6 21 6" }),
-          jsx("path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" }),
+          jsx("label", { htmlFor: id, style: css.label, children: label }),
+          children,
+          hint ? jsx("p", { style: css.hint, children: hint }) : null,
         ],
       });
     }
 
-    function SecretRow({ item, t, onError, onDeleted }) {
+    function Pill({ ok, children }) {
+      return jsx("span", {
+        style: ok ? { ...css.pill, ...css.pillOk } : css.pill,
+        children: children,
+      });
+    }
+
+    /**
+     * Configured secret row — write-only.
+     * Never fetches or displays the existing value.
+     */
+    function SecretRow({ item, t, onError, onDeleted, busyGlobal }) {
+      const [mode, setMode] = useState("configured"); // configured | replacing
       const [draft, setDraft] = useState("");
-      const [loaded, setLoaded] = useState(false);
-      const [visible, setVisible] = useState(false);
-      const [dirty, setDirty] = useState(false);
       const [saveState, setSaveState] = useState(""); // '' | saving | saved
-      const baseline = useRef("");
+      const busy = saveState === "saving" || busyGlobal;
 
-      async function ensureLoaded() {
-        if (loaded) return baseline.current;
-        const r = await api("/" + encodeURIComponent(item.name));
-        const val = r.value || "";
-        baseline.current = val;
-        setDraft(val);
-        setLoaded(true);
-        return val;
-      }
-
-      async function onToggleVisible() {
-        try {
-          await ensureLoaded();
-          setVisible((v) => !v);
-        } catch (e) {
-          onError((e && e.message) || t("error"));
-        }
-      }
-
-      async function onFocus() {
-        if (loaded) return;
-        try {
-          await ensureLoaded();
-        } catch (e) {
-          onError((e && e.message) || t("error"));
-        }
-      }
-
-      function onChange(ev) {
-        setDraft(ev.target.value);
-        setDirty(true);
+      function enterReplace() {
+        setDraft("");
         setSaveState("");
+        setMode("replacing");
       }
 
-      async function persist(next) {
-        if (!next) return;
-        if (next === baseline.current) {
-          setDirty(false);
-          return;
-        }
+      function cancelReplace() {
+        setDraft("");
+        setSaveState("");
+        setMode("configured");
+      }
+
+      async function saveReplace(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        const next = draft;
+        if (!next || busy) return;
         setSaveState("saving");
         try {
-          await api("", { method: "POST", body: JSON.stringify({ name: item.name, value: next }) });
-          baseline.current = next;
-          setDirty(false);
-          setLoaded(true);
+          await api("", {
+            method: "POST",
+            body: JSON.stringify({ name: item.name, value: next }),
+          });
+          setDraft("");
+          setMode("configured");
           setSaveState("saved");
           setTimeout(() => setSaveState((s) => (s === "saved" ? "" : s)), 1200);
-        } catch (e) {
+        } catch (err) {
           setSaveState("");
-          onError((e && e.message) || t("error"));
+          onError((err && err.message) || t("error"));
         }
-      }
-
-      async function onBlur() {
-        if (!dirty) return;
-        await persist(draft);
       }
 
       async function onDelete() {
         if (!confirm(t("confirmDelete"))) return;
         try {
           await api("/" + encodeURIComponent(item.name), { method: "DELETE" });
+          setDraft("");
           onDeleted();
-        } catch (e) {
-          onError((e && e.message) || t("error"));
+        } catch (err) {
+          onError((err && err.message) || t("error"));
         }
       }
 
       return jsxs("div", {
-        style: {
-          display: "grid",
-          gridTemplateColumns: "minmax(7rem, 11rem) 1fr auto auto",
-          gap: "0.5rem",
-          alignItems: "center",
-          padding: "0.65rem 0.75rem",
-          borderRadius: "0.5rem",
-          background: "color-mix(in oklab, Canvas 92%, CanvasText 8%)",
-        },
+        style: css.card,
+        "data-secret-name": item.name,
+        "data-secret-state": mode === "replacing" ? "replacing" : "configured",
         children: [
-          jsx("code", {
-            style: { fontSize: "0.8rem", wordBreak: "break-all", opacity: 0.9 },
-            children: item.name,
-          }),
           jsxs("div", {
-            style: { display: "flex", flexDirection: "column", gap: "0.15rem", minWidth: 0 },
+            style: css.row,
             children: [
-              jsx("input", {
-                type: visible ? "text" : "password",
-                value: loaded ? draft : "",
-                placeholder: loaded ? "" : MASK,
-                autoComplete: "off",
-                spellCheck: false,
-                onFocus: () => void onFocus(),
-                onChange: onChange,
-                onBlur: () => void onBlur(),
-                "aria-label": item.name,
-                style: {
-                  width: "100%",
-                  boxSizing: "border-box",
-                  padding: "0.45rem 0.6rem",
-                  borderRadius: "0.4rem",
-                  border: "1px solid color-mix(in oklab, CanvasText 18%, transparent)",
-                  background: "transparent",
-                  color: "inherit",
-                  font: "inherit",
-                  fontSize: "0.85rem",
-                },
-              }),
-              saveState
-                ? jsx("span", {
-                    style: { fontSize: "0.7rem", opacity: 0.65 },
-                    children: saveState === "saving" ? t("saving") : t("saved"),
-                  })
-                : null,
+              jsx("code", { style: css.secretName, children: item.name }),
+              jsx(Pill, { ok: true, children: t("configured") }),
             ],
           }),
-          jsx("button", {
-            ...iconBtn,
-            title: visible ? t("hide") : t("show"),
-            "aria-label": visible ? t("hide") : t("show"),
-            onClick: () => void onToggleVisible(),
-            children: jsx(IconEye, { open: visible }),
-          }),
-          jsx("button", {
-            ...iconBtn,
-            title: t("delete"),
-            "aria-label": t("delete"),
-            onClick: () => void onDelete(),
-            children: jsx(IconTrash, {}),
-          }),
+          mode === "configured"
+            ? jsxs("div", {
+                style: css.row,
+                children: [
+                  jsx("button", {
+                    type: "button",
+                    style: btnStyle(css.btn, busy),
+                    disabled: busy,
+                    onClick: enterReplace,
+                    children: t("replace"),
+                  }),
+                  jsx("button", {
+                    type: "button",
+                    style: btnStyle(css.btnDanger, busy),
+                    disabled: busy,
+                    onClick: () => void onDelete(),
+                    children: t("remove"),
+                  }),
+                  saveState === "saved"
+                    ? jsx("span", { style: css.status, children: t("saved") })
+                    : null,
+                ],
+              })
+            : jsxs("form", {
+                onSubmit: (ev) => void saveReplace(ev),
+                style: { display: "flex", flexDirection: "column", gap: "0.5rem" },
+                children: [
+                  jsx(Field, {
+                    id: "replace-" + item.name,
+                    label: t("value"),
+                    hint: t("newValueHint"),
+                    children: jsx("input", {
+                      id: "replace-" + item.name,
+                      type: "password",
+                      value: draft,
+                      autoComplete: "new-password",
+                      spellCheck: false,
+                      disabled: busy,
+                      onChange: (ev) => setDraft(ev.target.value),
+                      style: css.input,
+                      // intentionally no placeholder mask / no prior value
+                    }),
+                  }),
+                  jsxs("div", {
+                    style: css.row,
+                    children: [
+                      jsx("button", {
+                        type: "submit",
+                        style: btnStyle(css.btnPrimary, busy || !draft),
+                        disabled: busy || !draft,
+                        children: saveState === "saving" ? t("saving") : t("save"),
+                      }),
+                      jsx("button", {
+                        type: "button",
+                        style: btnStyle(css.btn, busy),
+                        disabled: busy,
+                        onClick: cancelReplace,
+                        children: t("cancel"),
+                      }),
+                    ],
+                  }),
+                ],
+              }),
         ],
       });
     }
@@ -293,7 +421,6 @@ window.__ModuleLoader__.load({
       const [err, setErr] = useState("");
       const [name, setName] = useState("");
       const [value, setValue] = useState("");
-      const [showValue, setShowValue] = useState(false);
       const [busy, setBusy] = useState(false);
       const [loading, setLoading] = useState(true);
 
@@ -315,11 +442,13 @@ window.__ModuleLoader__.load({
 
       async function onAdd(e) {
         e.preventDefault();
-        if (!name.trim() || !value) return;
+        const n = name.trim();
+        const v = value;
+        if (!n || !v || busy) return;
         setBusy(true);
         setErr("");
         try {
-          await api("", { method: "POST", body: JSON.stringify({ name: name.trim(), value }) });
+          await api("", { method: "POST", body: JSON.stringify({ name: n, value: v }) });
           setName("");
           setValue("");
           await refresh();
@@ -332,123 +461,88 @@ window.__ModuleLoader__.load({
 
       return jsxs("div", {
         className: "dsh-piblox-secrets",
-        style: {
-          display: "flex",
-          flexDirection: "column",
-          gap: "1.25rem",
-          maxWidth: "44rem",
-        },
+        style: css.page,
         children: [
           jsxs("div", {
             children: [
-              jsx("h2", {
-                style: { margin: 0, fontSize: "1.25rem", letterSpacing: "-0.02em" },
-                children: t("title"),
-              }),
-              jsx("p", {
-                style: { opacity: 0.72, margin: "0.25rem 0 0", fontSize: "0.9rem", lineHeight: 1.4 },
-                children: t("subtitle"),
-              }),
+              jsx("h2", { style: css.title, children: t("title") }),
+              jsx("p", { style: css.subtitle, children: t("subtitle") }),
             ],
           }),
-          jsx("div", {
-            style: { display: "flex", flexDirection: "column", gap: "0.5rem" },
+
+          jsx(Section, {
+            title: t("sectionVault"),
+            first: true,
             children: loading
-              ? jsx("div", {
-                  style: { opacity: 0.65, fontSize: "0.9rem", padding: "0.5rem 0" },
-                  children: t("loading"),
-                })
+              ? jsx("div", { style: css.muted, children: t("loading") })
               : items.length
-                ? items.map((item) =>
-                    jsx(
-                      SecretRow,
-                      {
-                        item: item,
-                        t: t,
-                        onError: setErr,
-                        onDeleted: () => void refresh(),
-                      },
-                      item.name,
+                ? jsxs("div", {
+                    style: { display: "flex", flexDirection: "column", gap: "0.55rem" },
+                    children: items.map((item) =>
+                      jsx(
+                        SecretRow,
+                        {
+                          item: item,
+                          t: t,
+                          onError: setErr,
+                          onDeleted: () => void refresh(),
+                          busyGlobal: busy,
+                        },
+                        item.name,
+                      ),
                     ),
-                  )
-                : jsx("div", {
-                    style: { opacity: 0.65, fontSize: "0.9rem", padding: "0.5rem 0" },
-                    children: t("empty"),
-                  }),
+                  })
+                : jsx("div", { style: css.muted, children: t("empty") }),
           }),
-          jsxs("form", {
-            onSubmit: onAdd,
-            style: { display: "flex", flexDirection: "column", gap: "0.5rem" },
-            children: [
-              jsxs("label", {
-                style: { display: "flex", flexDirection: "column", gap: "0.25rem", fontSize: "0.8rem" },
-                children: [
-                  t("name"),
-                  jsx("input", {
+
+          jsx(Section, {
+            title: t("sectionAdd"),
+            children: jsxs("form", {
+              onSubmit: onAdd,
+              style: { display: "flex", flexDirection: "column", gap: "0.65rem" },
+              children: [
+                jsx(Field, {
+                  id: "secrets-new-name",
+                  label: t("name"),
+                  hint: t("nameHint"),
+                  children: jsx("input", {
+                    id: "secrets-new-name",
                     value: name,
-                    placeholder: t("nameHint"),
                     autoComplete: "off",
                     spellCheck: false,
+                    disabled: busy,
                     onChange: (ev) => setName(ev.target.value),
-                    style: {
-                      padding: "0.5rem 0.65rem",
-                      borderRadius: "0.4rem",
-                      border: "1px solid color-mix(in oklab, CanvasText 18%, transparent)",
-                      background: "transparent",
-                      color: "inherit",
-                      font: "inherit",
-                    },
+                    style: css.input,
                   }),
-                ],
-              }),
-              jsxs("label", {
-                style: { display: "flex", flexDirection: "column", gap: "0.25rem", fontSize: "0.8rem" },
-                children: [
-                  t("value"),
-                  jsxs("div", {
-                    style: { display: "flex", gap: "0.35rem", alignItems: "center" },
-                    children: [
-                      jsx("input", {
-                        type: showValue ? "text" : "password",
-                        value: value,
-                        placeholder: MASK,
-                        autoComplete: "new-password",
-                        onChange: (ev) => setValue(ev.target.value),
-                        style: {
-                          flex: 1,
-                          padding: "0.5rem 0.65rem",
-                          borderRadius: "0.4rem",
-                          border: "1px solid color-mix(in oklab, CanvasText 18%, transparent)",
-                          background: "transparent",
-                          color: "inherit",
-                          font: "inherit",
-                        },
-                      }),
-                      jsx("button", {
-                        ...iconBtn,
-                        type: "button",
-                        title: showValue ? t("hide") : t("show"),
-                        "aria-label": showValue ? t("hide") : t("show"),
-                        onClick: () => setShowValue((v) => !v),
-                        children: jsx(IconEye, { open: showValue }),
-                      }),
-                    ],
+                }),
+                jsx(Field, {
+                  id: "secrets-new-value",
+                  label: t("value"),
+                  hint: t("newValueHint"),
+                  children: jsx("input", {
+                    id: "secrets-new-value",
+                    type: "password",
+                    value: value,
+                    autoComplete: "new-password",
+                    disabled: busy,
+                    onChange: (ev) => setValue(ev.target.value),
+                    style: css.input,
                   }),
-                ],
-              }),
-              jsx("button", {
-                type: "submit",
-                disabled: busy || !name.trim() || !value,
-                children: busy ? t("loading") : t("add"),
-              }),
-            ],
+                }),
+                jsx("div", {
+                  style: css.row,
+                  children: jsx("button", {
+                    type: "submit",
+                    style: btnStyle(css.btnPrimary, busy || !name.trim() || !value),
+                    disabled: busy || !name.trim() || !value,
+                    children: busy ? t("saving") : t("add"),
+                  }),
+                }),
+              ],
+            }),
           }),
-          err
-            ? jsx("div", {
-                style: { color: "tomato", fontSize: "0.85rem" },
-                children: err,
-              })
-            : null,
+
+          err ? jsx("div", { style: css.error, role: "alert", children: err }) : null,
         ],
       });
     }
@@ -464,7 +558,6 @@ window.__ModuleLoader__.load({
       const t = tBound(ctx);
       const injected = () => ({ t });
 
-      // Settings sidebar only — do not also register settings.plugin.item (duplicate vault UI).
       ctx.slots.inject("settings.section", () =>
         ctx.slots.register(
           {
@@ -481,7 +574,10 @@ window.__ModuleLoader__.load({
     }
 
     exports.apply = apply;
-    exports.inject = ["slots", "locale", "settingsScope"];
+    // DSH ≥ 0.2: settingsScope removed. This client only needs slots+locale
+    // (section UI is remote-driven; host settings install uses soft inject).
+    exports.inject = ["slots", "locale"];
+    exports.SecretsSection = SecretsSection;
     return module.exports;
   },
 });
