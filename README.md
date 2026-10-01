@@ -12,7 +12,7 @@ dsh plugin --profile <name> add dsh-piblox-secrets
 
 # or from a local / git checkout
 dsh plugin --profile <name> add ./dsh-piblox-secrets
-# dsh plugin --profile <name> add github:Mestryx-dev/dsh-piblox-secrets
+# dsh plugin --profile <name> add github:mestyx/dsh-piblox-secrets
 ```
 
 Requires Node ≥ 22 (built-in `node:sqlite`). Headless profiles work without the web client half.

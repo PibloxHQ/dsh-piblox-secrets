@@ -1,6 +1,6 @@
 {
   "name": "dsh-piblox-secrets",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "description": "Cordis / DeepSeek Harness secrets vault — embedded AES-256-GCM SQLite store, model tools, operator Secrets UI",
   "type": "module",
   "main": "./dist/index.js",
@@ -73,10 +73,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Mestryx-dev/dsh-piblox-secrets.git"
+    "url": "git+https://github.com/mestyx/dsh-piblox-secrets.git"
   },
   "bugs": {
-    "url": "https://github.com/Mestryx-dev/dsh-piblox-secrets/issues"
+    "url": "https://github.com/mestyx/dsh-piblox-secrets/issues"
   },
-  "homepage": "https://github.com/Mestryx-dev/dsh-piblox-secrets#readme"
+  "homepage": "https://github.com/mestyx/dsh-piblox-secrets#readme"
 }
